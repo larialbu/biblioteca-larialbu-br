@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>@larialbu/br — Biblioteca React para o Mercado Brasileiro</title>
+  <meta name="description" content="Componentes, hooks, utilitários e integrações para acelerar o desenvolvimento de sistemas brasileiros. CPF, CNPJ, CEP, PIX e muito mais." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ══════════════════════════════════════════
+       DESIGN TOKENS
+       ══════════════════════════════════════════ */
+    :root {
+      --green: #009c3b;
+      --green-light: #00c04b;
+      --green-dark: #007a2e;
+      --yellow: #ffdf00;
+      --yellow-light: #ffe94d;
+      --blue: #002776;
+      --blue-light: #0040a8;
+      --bg-dark: #0a0e1a;
+      --bg-card: rgba(255, 255, 255, 0.04);
+      --bg-card-hover: rgba(255, 255, 255, 0.07);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-border-hover: rgba(255, 255, 255, 0.15);
+      --text-primary: #f0f2f5;
+      --text-secondary: #8b92a5;
+      --text-muted: #555c70;
+      --success: #34d399;
+      --error: #f87171;
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-xs: 6px;
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    /* ══════════════════════════════════════════
+       RESET & BASE
+       ══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--font);
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; font-family: var(--font); }
+    input { font-family: var(--font); }
+
+    /* ══════════════════════════════════════════
+       BACKGROUND AMBIENT
+       ══════════════════════════════════════════ */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background:
+        radial-gradient(ellipse 600px 400px at 20% 20%, rgba(0, 156, 59, 0.08), transparent),
+        radial-gradient(ellipse 500px 500px at 80% 60%, rgba(0, 39, 118, 0.08), transparent),
+        radial-gradient(ellipse 400px 300px at 50% 80%, rgba(255, 223, 0, 0.04), transparent);
+      animation: ambientDrift 25s ease-in-out infinite alternate;
+      z-index: -1;
+      pointer-events: none;
+    }
+    @keyframes ambientDrift {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(30px, -20px) rotate(3deg); }
+    }
+
+    /* ══════════════════════════════════════════
+       LAYOUT
+       ══════════════════════════════════════════ */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ══════════════════════════════════════════
+       NAV
+       ══════════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      backdrop-filter: blur(20px) saturate(1.4);
+      -webkit-backdrop-filter: blur(20px) saturate(1.4);
+      background: rgba(10, 14, 26, 0.75);
+      border-bottom: 1px solid var(--glass-border);
+      transition: var(--transition);
+    }
+    nav .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      font-weight: 800;
+      font-size: 1.15rem;
+      background: linear-gradient(135deg, var(--green-light), var(--yellow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+    .nav-links { display: flex; gap: 8px; flex-wrap: wrap; }
+    .nav-links a {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: var(--transition);
+    }
+    .nav-links a:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* ══════════════════════════════════════════
+       HERO
+       ══════════════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 24px 60px;
+      position: relative;
+    }
+    .hero-content { max-width: 720px; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      border-radius: 100px;
+      background: rgba(0, 156, 59, 0.12);
+      border: 1px solid rgba(0, 156, 59, 0.25);
+      color: var(--green-light);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 32px;
+      animation: fadeInUp 0.8s ease-out;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green-light);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4.2rem);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+      animation: fadeInUp 0.8s ease-out 0.1s both;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--green-light) 0%, var(--yellow) 50%, var(--green-light) 100%);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: gradientShift 4s ease-in-out infinite;
+    }
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 540px;
+      margin: 0 auto 40px;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      animation: fadeInUp 0.8s ease-out 0.3s both;
+    }
+    .hero-stat { text-align: center; }
+    .hero-stat .number {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--green-light), var(--yellow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-stat .label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: bounce 2.5s ease-in-out infinite;
+    }
+    .scroll-indicator svg { width: 24px; height: 24px; opacity: 0.3; }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(10px); }
+    }
+
+    /* ══════════════════════════════════════════
+       SECTIONS
+       ══════════════════════════════════════════ */
+    section {
+      padding: 100px 0;
+      position: relative;
+    }
+    section + section {
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+    .section-header {
+      margin-bottom: 48px;
+    }
+    .section-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--green-light);
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+    .section-tag .dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--green-light);
+    }
+    .section-header h2 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .section-header p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      max-width: 560px;
+    }
+
+    /* ══════════════════════════════════════════
+       GLASS CARDS
+       ══════════════════════════════════════════ */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      padding: 32px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: var(--transition);
+    }
+    .card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--glass-border-hover);
+      transform: translateY(-2px);
+    }
+    .card-label {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    /* ══════════════════════════════════════════
+       FORM ELEMENTS
+       ══════════════════════════════════════════ */
+    .input {
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-primary);
+      font-size: 1rem;
+      outline: none;
+      transition: var(--transition);
+    }
+    .input::placeholder { color: var(--text-muted); }
+    .input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(0, 156, 59, 0.15);
+    }
+    .input.valid {
+      border-color: var(--success);
+      box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.15);
+    }
+    .input.invalid {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.15);
+    }
+    .input-hint {
+      font-size: 0.82rem;
+      margin-top: 8px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .input-hint.success { color: var(--success); }
+    .input-hint.error { color: var(--error); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: white;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--green-light), var(--green));
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(0, 156, 59, 0.3);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* ══════════════════════════════════════════
+       CODE BLOCKS
+       ══════════════════════════════════════════ */
+    .code-block {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      color: var(--text-secondary);
+    }
+    .code-block .kw { color: #c792ea; }
+    .code-block .fn { color: #82aaff; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .num { color: #f78c6c; }
+    .code-block .comment { color: #546e7a; font-style: italic; }
+    .code-block .tag { color: #f07178; }
+    .code-block .attr { color: #ffcb6b; }
+
+    /* ══════════════════════════════════════════
+       RESULTS / OUTPUT
+       ══════════════════════════════════════════ */
+    .result-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-sm);
+      padding: 16px 20px;
+      margin-top: 16px;
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ══════════════════════════════════════════
+       THEME SECTION — COLOR SWATCHES
+       ══════════════════════════════════════════ */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .color-swatch {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      transition: var(--transition);
+      cursor: default;
+    }
+    .color-swatch:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: var(--glass-border-hover);
+    }
+    .color-swatch .preview {
+      height: 100px;
+      transition: var(--transition);
+    }
+    .color-swatch:hover .preview {
+      height: 110px;
+    }
+    .color-swatch .info {
+      padding: 14px 16px;
+      background: var(--bg-card);
+    }
+    .color-swatch .info .name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: capitalize;
+    }
+    .color-swatch .info .hex {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ══════════════════════════════════════════
+       ICONS GALLERY
+       ══════════════════════════════════════════ */
+    .icons-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .icon-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 28px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius);
+      transition: var(--transition);
+      cursor: default;
+    }
+    .icon-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--glass-border-hover);
+      transform: translateY(-4px);
+    }
+    .icon-card:hover svg {
+      transform: scale(1.15);
+    }
+    .icon-card svg {
+      transition: var(--transition);
+    }
+    .icon-card .icon-name {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    .icon-card .icon-color {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    /* ══════════════════════════════════════════
+       DEMO GRID
+       ══════════════════════════════════════════ */
+    .demo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+    @media (max-width: 768px) {
+      .demo-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ══════════════════════════════════════════
+       CURRENCY RESULTS
+       ══════════════════════════════════════════ */
+    .currency-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .currency-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      transition: var(--transition);
+    }
+    .currency-item:hover {
+      border-color: rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.3);
+    }
+    .currency-item .raw {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+    .currency-item .arrow { color: var(--text-muted); font-size: 0.8rem; }
+    .currency-item .formatted {
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--green-light);
+    }
+
+    /* ══════════════════════════════════════════
+       CEP RESULT
+       ══════════════════════════════════════════ */
+    .cep-result {
+      margin-top: 16px;
+      padding: 20px;
+      background: rgba(0, 156, 59, 0.06);
+      border: 1px solid rgba(0, 156, 59, 0.15);
+      border-radius: var(--radius-sm);
+    }
+    .cep-result .field {
+      display: flex;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 0.9rem;
+    }
+    .cep-result .field-label {
+      font-weight: 700;
+      color: var(--text-secondary);
+      min-width: 80px;
+    }
+    .cep-result .field-value {
+      color: var(--text-primary);
+    }
+
+    /* ══════════════════════════════════════════
+       PACKAGES GRID (FOOTER-AREA)
+       ══════════════════════════════════════════ */
+    .packages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .package-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      transition: var(--transition);
+    }
+    .package-pill:hover {
+      border-color: var(--green);
+      color: var(--green-light);
+      background: rgba(0, 156, 59, 0.06);
+    }
+    .package-pill .emoji { font-size: 1.1rem; }
+
+    /* ══════════════════════════════════════════
+       FOOTER
+       ══════════════════════════════════════════ */
+    footer {
+      padding: 60px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      text-align: center;
+    }
+    footer .footer-logo {
+      font-weight: 800;
+      font-size: 1.4rem;
+      background: linear-gradient(135deg, var(--green-light), var(--yellow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+    footer p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+    footer .footer-links {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    footer .footer-links a {
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: var(--transition);
+    }
+    footer .footer-links a:hover { color: var(--green-light); }
+
+    /* ══════════════════════════════════════════
+       INSTALL BANNER
+       ══════════════════════════════════════════ */
+    .install-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 24px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: var(--radius-sm);
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .install-banner code {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      color: var(--green-light);
+    }
+    .install-banner .copy-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius-xs);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+    .install-banner .copy-btn:hover {
+      border-color: var(--green);
+      color: var(--green-light);
+    }
+
+    /* ══════════════════════════════════════════
+       FLEX UTILS
+       ══════════════════════════════════════════ */
+    .flex-row { display: flex; gap: 12px; align-items: stretch; }
+    .flex-row .input { flex: 1; }
+
+    /* ══════════════════════════════════════════
+       SCROLL ANIMATIONS
+       ══════════════════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ══════════════════════════════════════════
+       MOBILE NAV
+       ══════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero-stats { gap: 24px; }
+      .hero h1 { letter-spacing: -1px; }
+      section { padding: 60px 0; }
+      .card { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════ NAV ═══════════ -->
+  <nav>
+    <div class="container">
+      <a href="#" class="nav-logo">@larialbu/br</a>
+      <div class="nav-links">
+        <a href="#tema">Tema</a>
+        <a href="#icones">Ícones</a>
+        <a href="#componentes">Componentes</a>
+        <a href="#validadores">Validadores</a>
+        <a href="#mascaras">Máscaras</a>
+        <a href="#utilitarios">Utilitários</a>
+        <a href="#hooks">Hooks</a>
+        <a href="#api">API</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════ HERO ═══════════ -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">Open Source · NPM Ready</div>
+      <h1>
+        Componentes para o<br />
+        <span class="gradient">mercado brasileiro</span>
+      </h1>
+      <p>
+        Ecossistema completo de componentes React, hooks, utilitários e integrações
+        para acelerar o desenvolvimento de sistemas brasileiros.
+      </p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="number">8</div>
+          <div class="label">Pacotes</div>
+        </div>
+        <div class="hero-stat">
+          <div class="number">20+</div>
+          <div class="label">Módulos</div>
+        </div>
+        <div class="hero-stat">
+          <div class="number">100%</div>
+          <div class="label">TypeScript</div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 5v14M5 12l7 7 7-7"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ═══════════ TEMA ═══════════ -->
+  <section id="tema">
+    <div class="container reveal">
+      <div class="section-header">
+        <div class="section-tag"><span class="dot"></span>br-theme</div>
+        <h2>Tema Brasil</h2>
+        <p>Paleta de cores inspirada nas cores da bandeira do Brasil, pronta para usar em qualquer projeto.</p>
+      </div>
+
+      <div class="install-banner">
+        <code>npm install @larialbu/br-theme</code>
+        <button class="copy-btn" onclick="copyText('npm install @larialbu/br-theme', this)">Copiar</button>
+      </div>
+
+      <div class="color-grid">
+        <div class="color-swatch">
+          <div class="preview" style="background: #009c3b"></div>
+          <div class="info">
+            <div class="name">primary</div>
+            <div class="hex">#009c3b</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #ffdf00"></div>
+          <div class="info">
+            <div class="name">secondary</div>
+            <div class="hex">#ffdf00</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #002776"></div>
+          <div class="info">
+            <div class="name">accent</div>
+            <div class="hex">#002776</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #333333"></div>
+          <div class="info">
+            <div class="name">text</div>
+            <div class="hex">#333333</div>
+          </div>
+        </div>
+        <div class="color-swatch">
+          <div class="preview" style="background: #f9f9f9"></div>
+          <div class="info">
+            <div class="name">background</div>
+            <div class="hex">#f9f9f9</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-block" style="margin-top: 24px">
+        <span class="kw">import</span> { colors } <span class="kw">from</span> <span class="str">'@larialbu/br-theme'</span>;<br><br>
+        <span class="comment">// colors.primary   → '#009c3b'</span><br>
+        <span class="comment">// colors.secondary → '#ffdf00'</span><br>
+        <span class="comment">// colors.accent    → '#002776'</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ ÍCONES ═══════════ -->
+  <section id="icones">
+    <div class="container reveal">
+      <div class="section-header">
+        <div class="section-tag"><span class="dot"></span>br-icons</div>
+        <h2>Ícones Brasileiros</h2>
+        <p>SVGs otimizados para PIX, CPF, CNPJ, Correios, Nota Fiscal e Boleto.</p>
+      </div>
+
+      <div class="install-banner">
+        <code>npm install @larialbu/br-icons</code>
+        <button class="copy-btn" onclick="copyText('npm install @larialbu/br-icons', this)">Copiar</button>
+      </div>
+
+      <div class="icons-grid">
+        <!-- PIX -->
+        <div class="icon-card">
+          <svg width="48" height="48" viewBox="0 0 512 512" fill="none">
+            <path d="M395.5 322.6c-18.3 0-35.5-7.1-48.4-20.1l-75.5-75.5c-5.5-5.4-14.5-5.5-20.1 0l-75.9 75.9c-12.9 12.9-30.1 20.1-48.4 20.1h-10.2l95.7 95.7c26.5 26.5 69.4 26.5 95.9 0l95.3-95.3h-8.4z" fill="#32BCAD"/>
+            <path d="M127.2 189.4c18.3 0 35.5 7.1 48.4 20.1l75.9 75.9c5.5 5.5 14.6 5.5 20.1 0l75.5-75.5c12.9-12.9 30.1-20.1 48.4-20.1h8.8l-95.7-95.7c-26.5-26.5-69.4-26.5-95.9 0l-95.7 95.7h10.2z" fill="#32BCAD"/>
+            <path d="M443.9 255.5l-48.9-48.9c-2 1.3-4.2 2.3-6.5 2.3h-23.4c-12.8 0-25.5 5.2-34.6 14.3l-75.5 75.5c-10.7 10.7-24.8 16-38.9 16s-28.2-5.3-38.9-16l-75.9-75.9c-9.1-9.1-21.8-14.3-34.6-14.3h-17.5c-2.8 0-5.5-1-7.7-2.7L68 255.5c-26.5 26.5-26.5 69.4 0 95.9l48.5-48.5c2.2-1.7 4.9-2.7 7.7-2.7h17.5c12.8 0 25.5 5.2 34.6 14.3l75.9 75.9c10.7 10.7 24.8 16 38.9 16s28.2-5.3 38.9-16l75.5-75.5c9.1-9.1 21.8-14.3 34.6-14.3h23.4c2.3 0 4.5.9 6.5 2.3l48.9-48.9c26.4-26.5 26.4-69.5-.1-96z" fill="#32BCAD"/>
+          </svg>
+          <div class="icon-name">PixIcon</div>
+          <div class="icon-color">#32BCAD</div>
+        </div>
+        <!-- CPF -->
+        <div class="icon-card">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="3" width="20" height="18" rx="2" stroke="#1565C0" stroke-width="2"/>
+            <circle cx="8" cy="10" r="2.5" stroke="#1565C0" stroke-width="1.5"/>
+            <path d="M4 17c0-2 1.8-3.5 4-3.5s4 1.5 4 3.5" stroke="#1565C0" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="14" y1="9" x2="20" y2="9" stroke="#1565C0" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="14" y1="12" x2="20" y2="12" stroke="#1565C0" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="14" y1="15" x2="18" y2="15" stroke="#1565C0" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <div class="icon-name">CPFIcon</div>
+          <div class="icon-color">#1565C0</div>
+        </div>
+        <!-- CNPJ -->
+        <div class="icon-card">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="4" width="18" height="16" rx="2" stroke="#2E7D32" stroke-width="2"/>
+            <path d="M7 4V2" stroke="#2E7D32" stroke-width="2" stroke-linecap="round"/>
+            <path d="M17 4V2" stroke="#2E7D32" stroke-width="2" stroke-linecap="round"/>
+            <rect x="6" y="8" width="5" height="4" rx="0.5" stroke="#2E7D32" stroke-width="1.5"/>
+            <line x1="6" y1="15" x2="18" y2="15" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="6" y1="18" x2="14" y2="18" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="14" y1="8" x2="18" y2="8" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="14" y1="11" x2="18" y2="11" stroke="#2E7D32" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <div class="icon-name">CNPJIcon</div>
+          <div class="icon-color">#2E7D32</div>
+        </div>
+        <!-- Correios -->
+        <div class="icon-card">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="5" width="20" height="14" rx="2" stroke="#FFD600" stroke-width="2"/>
+            <path d="M2 7l10 6 10-6" stroke="#FFD600" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 19l7-5" stroke="#FFD600" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M22 19l-7-5" stroke="#FFD600" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <div class="icon-name">CorreiosIcon</div>
+          <div class="icon-color">#FFD600</div>
+        </div>
+        <!-- NF -->
+        <div class="icon-card">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" stroke="#E65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 2v6h6" stroke="#E65100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="8" y1="13" x2="16" y2="13" stroke="#E65100" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="8" y1="16" x2="14" y2="16" stroke="#E65100" stroke-width="1.5" stroke-linecap="round"/>
+            <text x="8" y="11" font-size="5" fill="#E65100" font-weight="bold" font-family="sans-serif">NF</text>
+          </svg>
+          <div class="icon-name">NFIcon</div>
+          <div class="icon-color">#E65100</div>
+        </div>
+        <!-- Boleto -->
+        <div class="icon-card">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="1" stroke="#9E9E9E" stroke-width="1.5"/>
+            <line x1="5" y1="7" x2="5" y2="17" stroke="#9E9E9E" stroke-width="2"/>
+            <line x1="8" y1="7" x2="8" y2="17" stroke="#9E9E9E" stroke-width="1"/>
+            <line x1="10" y1="7" x2="10" y2="17" stroke="#9E9E9E" stroke-width="2"/>
+            <line x1="12.5" y1="7" x2="12.5" y2="17" stroke="#9E9E9E" stroke-width="1"/>
+            <line x1="14" y1="7" x2="14" y2="17" stroke="#9E9E9E" stroke-width="1.5"/>
+            <line x1="16" y1="7" x2="16" y2="17" stroke="#9E9E9E" stroke-width="1"/>
+            <line x1="18" y1="7" x2="18" y2="17" stroke="#9E9E9E" stroke-width="2"/>
+            <line x1="20" y1="7" x2="20" y2="17" stroke="#9E9E9E" stroke-width="1"/>
+          </svg>
+          <div class="icon-name">BoletoIcon</div>
+          <div class="icon-color">#424242</div>
+        </div>
+      </div>
+
+      <div class="code-block" style="margin-top: 24px">
+        <span class="kw">import</span> { PixIcon, CPFIcon, CNPJIcon } <span class="kw">from</span> <span class="str">'@larialbu/br-icons'</span>;<br><br>
+        <span class="tag">&lt;PixIcon</span> <span class="attr">size</span>={<span class="num">48</span>} <span class="attr">color</span>=<span class="str">"#32BCAD"</span> <span class="tag">/&gt;</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ COMPONENTES (CPFInput) ═══════════ -->
+  <section id="componentes">
+    <div class="container reveal">
+      <div class="section-header">
+        <div class="section-tag"><span class="dot"></span>br-react</div>
+        <h2>Componentes React</h2>
+        <p>Inputs inteligentes com máscara automática e validação embutida para documentos brasileiros.</p>
+      </div>
+
+      <div class="install-banner">
+        <code>npm install @larialbu/br-react</code>
+        <button class="copy-btn" onclick="copyText('npm install @larialbu/br-react', this)">Copiar</button>
+      </div>
+
+      <div class="demo-grid">
+        <div class="card">
+          <div class="card-label">Demo Interativa</div>
+          <h3 style="font-size: 1.1rem; margin-bottom: 4px">&lt;CPFInput /&gt;</h3>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px">Máscara automática + validação em tempo real</p>
+          <input
+            id="cpf-input"
+            type="text"
+            class="input"
+            placeholder="000.000.000-00"
+            maxlength="14"
+            oninput="handleCPFInput(this)"
+          />
+          <div id="cpf-hint"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Código</div>
+          <div class="code-block">
+            <span class="kw">import</span> { CPFInput } <span class="kw">from</span> <span class="str">'@larialbu/br-react'</span>;<br><br>
+            <span class="tag">&lt;CPFInput</span><br>
+            &nbsp;&nbsp;<span class="attr">onValidationChange</span>={<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;(<span class="fn">isValid</span>) => <span class="fn">console.log</span>(<span class="fn">isValid</span>)<br>
+            &nbsp;&nbsp;}<br>
+            <span class="tag">/&gt;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ VALIDADORES ═══════════ -->
+  <section id="validadores">
+    <div class="container reveal">
+      <div class="section-header">
+        <div class="section-tag"><span class="dot"></span>br-validators</div>
+        <h2>Validadores</h2>
+        <p>Funções puras para validação de CPF, CNPJ, CEP, telefone e mais.</p>
+      </div>
+
+      <div class="install-banner">
+        <code>npm install @larialbu/br-validators</code>
+        <button class="copy-btn" onclick="copyText('npm install @larialbu/br-validators', this)">Copiar</button>
+      </div>
+
+      <div class="demo-grid">
+        <div class="card">
+          <div class="card-label">Demo — isCPF()</div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px">Digite um CPF para validar com o algoritmo oficial</p>
+          <input
+            id="validator-input"
+            type="text"
+            class="input"
+            placeholder="Digite um CPF (com ou sem pontos)"
+            oninput="handleValidatorInput(this)"
+          />
+          <div id="validator-hint"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Código</div>
+          <div class="code-block">
+            <span class="kw">import</span> { isCPF } <span class="kw">from</span> <span class="str">'@larialbu/br-validators'</span>;<br><br>
+            <span class="fn">isCPF</span>(<span class="str">'123.456.789-09'</span>); <span class="comment">// true</span><br>
+            <span class="fn">isCPF</span>(<span class="str">'111.111.111-11'</span>); <span class="comment">// false</span><br>
+            <span class="fn">isCPF</span>(<span class="str">'000.000.000-00'</span>); <span class="comment">// false</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ MÁSCARAS ═══════════ -->
+  <section id="mascaras">
+    <div class="container reveal">
+      <div class="section-header">
+        <div class="section-tag"><span class="dot"></span>br-masks</div>
+        <h2>Máscaras</h2>
+        <p>Funções de formatação para inputs com máscaras brasileiras.</p>
+      </div>
+
+      <div class="install-banner">
+        <code>npm install @larialbu/br-masks</code>
+        <button class="copy-btn" onclick="copyText('npm install @larialbu/br-masks', this)">Copiar</button>
+      </div>
+
+      <div class="demo-grid">
+        <div class="card">
+          <div class="card-label">Demo — cpfMask()</div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px">Digite números e veja a máscara sendo aplicada</p>
+          <input
+            id="mask-input"
+            type="text"
+            class="input"
+            placeholder="Digite apenas números"
+            maxlength="14"
+            oninput="handleMaskInput(this)"
+          />
+          <div class="result-box" style="margin-top: 12px">
+            <span style="color: var(--text-muted);">Resultado: </span>
+            <span id="mask-output" style="color: var(--green-light); font-weight: 600;">—</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Código</div>
+          <div class="code-block">
+            <span class="kw">import</span> { cpfMask } <span class="kw">from</span> <span class="str">'@larialbu/br-masks'</span>;<br><br>
+            <span class="fn">cpfMask</span>(<span class="str">'12345678909'</span>);<br>
+            <span class="comment">// → '123.456.789-09'</span><br><br>
+            <span class="comment">// Use em qualquer input:</span><br>
+            <span class="tag">&lt;input</span> <span class="attr">onChange</span>={e =><br>
+            &nbsp;&nbsp;<span class="fn">setValue</span>(<span class="fn">cpfMask</span>(e.target.value))<br>
+            } <span class="tag">/&gt;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ UTILITÁRIOS ═══════════ -->
+  <section id="utilitarios">
+    <div class="container reveal">
+      <div class="section-header">
+        <div class="section-tag"><span class="dot"></span>br-utils</div>
+        <h2>Utilitários</h2>
+        <p>Formatadores e helpers para moeda, datas e documentos.</p>
+      </div>
+
+      <div class="install-banner">
+        <code>npm install @larialbu/br-utils</code>
+        <button class="copy-btn" onclick="copyText('npm install @larialbu/br-utils', this)">Copiar</button>
+      </div>
+
+      <div class="demo-grid">
+        <div class="card">
+          <div class="card-label">Demo — formatCurrency()</div>
+          <input
+            id="currency-input"
+            type="number"
+            class="input"
+            placeholder="Digite um valor numérico"
+            oninput="handleCurrencyInput(this)"
+            style="margin-bottom: 8px"
+          />
+          <div id="currency-result" class="result-box" style="margin-top: 12px">
+            <span style="color: var(--text-muted);">Resultado: </span>
+            <span id="currency-output" style="color: var(--green-light); font-weight: 600;">—</span>
+          </div>
+          <div class="currency-list">
+            <div class="currency-item">
+              <span class="raw">1234.56</span>
+              <span class="arrow">→</span>
+              <span class="formatted" id="fmt-1"></span>
+            </div>
+            <div class="currency-item">
+              <span class="raw">99.9</span>
+              <span class="arrow">→</span>
+              <span class="formatted" id="fmt-2"></span>
+            </div>
+            <div class="currency-item">
+              <span class="raw">1000000</span>
+              <span class="arrow">→</span>
+              <span class="formatted" id="fmt-3"></span>
+            </div>
+            <div class="currency-item">
+              <span class="raw">0.5</span>
+              <span class="arrow">→</span>
+              <span class="formatted" id="fmt-4"></span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-label">Código</div>
+          <div class="code-block">
+            <span class="kw">import</span> { formatCurrency } <span class="kw">from</span> <span class="str">'@larialbu/br-utils'</span>;<br><br>
+            <span class="fn">formatCurrency</span>(<span class="num">1234.56</span>);<br>
+            <span class="comment">// → 'R$ 1.234,56'</span><br><br>
+            <span class="fn">formatCurrency</span>(<span class="num">1000000</span>);<br>
+            <span class="comment">// → 'R$ 1.000.000,00'</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ HOOKS ═══════════ -->
+  <section id="hooks">
+    <div class="container reveal">
+      <div class="section-header">
+        <div class="section-tag"><span class="dot"></span>br-hooks</div>
+        <h2>React Hooks</h2>
+        <p>Hooks prontos para busca de CEP, validação e integração com APIs brasileiras.</p>
+      </div>
+
+      <div class="install-banner">
+        <code>npm install @larialbu/br-hooks</code>
+        <button class="copy-btn" onclick="copyText('npm install @larialbu/br-hooks', this)">Copiar</button>
+      </div>
+
+      <div class="demo-grid">
+        <div class="card">
+          <div class="card-label">Demo — useCEP()</div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px">Busca endereço via ViaCEP em tempo real</p>
+          <div class="flex-row">
+            <input
+              id="hook-cep-input"
+              type="text"
+              class="input"
+              placeholder="Digite um CEP (ex: 01001000)"
+              maxlength="9"
+            />
+            <button class="btn btn-primary" id="hook-cep-btn" onclick="handleHookCEP()">Buscar</button>
+          </div>
+          <div id="hook-cep-error"></div>
+          <div id="hook-cep-result" style="display:none"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Código</div>
+          <div class="code-block">
+            <span class="kw">import</span> { useCEP } <span class="kw">from</span> <span class="str">'@larialbu/br-hooks'</span>;<br><br>
+            <span class="kw">const</span> { data, loading, error, fetchCEP }<br>
+            &nbsp;&nbsp;= <span class="fn">useCEP</span>();<br><br>
+            <span class="comment">// data.logradouro</span><br>
+            <span class="comment">// data.bairro</span><br>
+            <span class="comment">// data.localidade</span><br>
+            <span class="comment">// data.uf</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ API ═══════════ -->
+  <section id="api">
+    <div class="container reveal">
+      <div class="section-header">
+        <div class="section-tag"><span class="dot"></span>br-api</div>
+        <h2>Integrações com APIs</h2>
+        <p>Funções prontas para consumir APIs públicas como ViaCEP, IBGE e ReceitaWS.</p>
+      </div>
+
+      <div class="install-banner">
+        <code>npm install @larialbu/br-api</code>
+        <button class="copy-btn" onclick="copyText('npm install @larialbu/br-api', this)">Copiar</button>
+      </div>
+
+      <div class="demo-grid">
+        <div class="card">
+          <div class="card-label">Demo — fetchCEP()</div>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px">Retorna JSON completo da API ViaCEP</p>
+          <div class="flex-row">
+            <input
+              id="api-cep-input"
+              type="text"
+              class="input"
+              placeholder="CEP (ex: 01001000)"
+              maxlength="9"
+            />
+            <button class="btn btn-primary" id="api-cep-btn" onclick="handleApiCEP()">Buscar</button>
+          </div>
+          <div id="api-cep-error"></div>
+          <div id="api-cep-result" style="display:none"></div>
+        </div>
+        <div class="card">
+          <div class="card-label">Código</div>
+          <div class="code-block">
+            <span class="kw">import</span> { fetchCEP } <span class="kw">from</span> <span class="str">'@larialbu/br-api'</span>;<br><br>
+            <span class="kw">const</span> data = <span class="kw">await</span> <span class="fn">fetchCEP</span>(<span class="str">'01001000'</span>);<br><br>
+            <span class="comment">// {</span><br>
+            <span class="comment">//   cep: '01001-000',</span><br>
+            <span class="comment">//   logradouro: 'Praça da Sé',</span><br>
+            <span class="comment">//   bairro: 'Sé',</span><br>
+            <span class="comment">//   localidade: 'São Paulo',</span><br>
+            <span class="comment">//   uf: 'SP'</span><br>
+            <span class="comment">// }</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ TODOS OS PACOTES ═══════════ -->
+  <section id="pacotes">
+    <div class="container reveal">
+      <div class="section-header">
+        <div class="section-tag"><span class="dot"></span>Ecossistema</div>
+        <h2>Todos os Pacotes</h2>
+        <p>Instale apenas o que você precisa. Cada pacote é independente.</p>
+      </div>
+
+      <div class="packages-grid">
+        <a href="#componentes" class="package-pill"><span class="emoji">⚛️</span> @larialbu/br-react</a>
+        <a href="#validadores" class="package-pill"><span class="emoji">✅</span> @larialbu/br-validators</a>
+        <a href="#mascaras" class="package-pill"><span class="emoji">🎭</span> @larialbu/br-masks</a>
+        <a href="#utilitarios" class="package-pill"><span class="emoji">🔧</span> @larialbu/br-utils</a>
+        <a href="#hooks" class="package-pill"><span class="emoji">🪝</span> @larialbu/br-hooks</a>
+        <a href="#api" class="package-pill"><span class="emoji">🌐</span> @larialbu/br-api</a>
+        <a href="#icones" class="package-pill"><span class="emoji">🎨</span> @larialbu/br-icons</a>
+        <a href="#tema" class="package-pill"><span class="emoji">🇧🇷</span> @larialbu/br-theme</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════ FOOTER ═══════════ -->
+  <footer>
+    <div class="container">
+      <div class="footer-logo">@larialbu/br</div>
+      <p>Feito com 💚💛 para o mercado brasileiro</p>
+      <p style="margin-top: 4px">React 19+ · TypeScript · Vite · Turborepo · Storybook</p>
+      <div class="footer-links">
+        <a href="https://github.com/larialbu">GitHub</a>
+        <a href="https://www.npmjs.com/search?q=%40larialbu">npm</a>
+        <a href="#">Documentação</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ══════════════════════════════════════════
+    // CORE FUNCTIONS (reimplemented from library)
+    // ══════════════════════════════════════════
+
+    function isCPF(cpf) {
+      const clean = cpf.replace(/[^\d]/g, '');
+      if (clean.length !== 11) return false;
+      if (/^(\d)\1{10}$/.test(clean)) return false;
+
+      let sum = 0;
+      for (let i = 1; i <= 9; i++) {
+        sum += parseInt(clean.substring(i - 1, i)) * (11 - i);
+      }
+      let remainder = (sum * 10) % 11;
+      if (remainder === 10 || remainder === 11) remainder = 0;
+      if (remainder !== parseInt(clean.substring(9, 10))) return false;
+
+      sum = 0;
+      for (let i = 1; i <= 10; i++) {
+        sum += parseInt(clean.substring(i - 1, i)) * (12 - i);
+      }
+      remainder = (sum * 10) % 11;
+      if (remainder === 10 || remainder === 11) remainder = 0;
+      if (remainder !== parseInt(clean.substring(10, 11))) return false;
+
+      return true;
+    }
+
+    function cpfMask(value) {
+      return value
+        .replace(/\D/g, '')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2')
+        .substring(0, 14);
+    }
+
+    function formatCurrency(value) {
+      return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+    }
+
+    // ══════════════════════════════════════════
+    // CPFInput Demo
+    // ══════════════════════════════════════════
+
+    function handleCPFInput(el) {
+      el.value = cpfMask(el.value);
+      const hint = document.getElementById('cpf-hint');
+      const digits = el.value.replace(/\D/g, '');
+
+      if (digits.length === 11) {
+        const valid = isCPF(el.value);
+        el.className = 'input ' + (valid ? 'valid' : 'invalid');
+        hint.innerHTML = valid
+          ? '<div class="input-hint success">✅ CPF Válido!</div>'
+          : '<div class="input-hint error">❌ CPF Inválido</div>';
+      } else {
+        el.className = 'input';
+        hint.innerHTML = '';
+      }
+    }
+
+    // ══════════════════════════════════════════
+    // Validator Demo
+    // ══════════════════════════════════════════
+
+    function handleValidatorInput(el) {
+      const hint = document.getElementById('validator-hint');
+      const digits = el.value.replace(/\D/g, '');
+
+      if (digits.length > 0) {
+        const valid = isCPF(el.value);
+        if (digits.length === 11) {
+          el.className = 'input ' + (valid ? 'valid' : 'invalid');
+          hint.innerHTML = valid
+            ? '<div class="input-hint success">✅ isCPF() → true</div>'
+            : '<div class="input-hint error">❌ isCPF() → false</div>';
+        } else {
+          el.className = 'input';
+          hint.innerHTML = '<div class="input-hint" style="color: var(--text-muted)">Digite os 11 dígitos do CPF...</div>';
+        }
+      } else {
+        el.className = 'input';
+        hint.innerHTML = '';
+      }
+    }
+
+    // ══════════════════════════════════════════
+    // Mask Demo
+    // ══════════════════════════════════════════
+
+    function handleMaskInput(el) {
+      const masked = cpfMask(el.value);
+      el.value = masked;
+      document.getElementById('mask-output').textContent = masked || '—';
+    }
+
+    // ══════════════════════════════════════════
+    // Currency Demo
+    // ══════════════════════════════════════════
+
+    function handleCurrencyInput(el) {
+      const val = parseFloat(el.value);
+      const output = document.getElementById('currency-output');
+      if (!isNaN(val)) {
+        output.textContent = formatCurrency(val);
+      } else {
+        output.textContent = '—';
+      }
+    }
+
+    // Pre-fill currency examples
+    document.getElementById('fmt-1').textContent = formatCurrency(1234.56);
+    document.getElementById('fmt-2').textContent = formatCurrency(99.9);
+    document.getElementById('fmt-3').textContent = formatCurrency(1000000);
+    document.getElementById('fmt-4').textContent = formatCurrency(0.5);
+
+    // ══════════════════════════════════════════
+    // Hook CEP Demo (useCEP)
+    // ══════════════════════════════════════════
+
+    async function handleHookCEP() {
+      const input = document.getElementById('hook-cep-input');
+      const btn = document.getElementById('hook-cep-btn');
+      const errorEl = document.getElementById('hook-cep-error');
+      const resultEl = document.getElementById('hook-cep-result');
+      const cep = input.value.replace(/\D/g, '');
+
+      errorEl.innerHTML = '';
+      resultEl.style.display = 'none';
+
+      if (cep.length !== 8) {
+        errorEl.innerHTML = '<div class="input-hint error" style="margin-top: 12px">❌ CEP inválido — deve conter 8 dígitos</div>';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '...';
+
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await res.json();
+
+        if (data.erro) {
+          errorEl.innerHTML = '<div class="input-hint error" style="margin-top: 12px">❌ CEP não encontrado</div>';
+        } else {
+          resultEl.style.display = 'block';
+          resultEl.innerHTML = `
+            <div class="cep-result">
+              <div class="field"><span class="field-label">Rua:</span><span class="field-value">${data.logradouro || '—'}</span></div>
+              <div class="field"><span class="field-label">Bairro:</span><span class="field-value">${data.bairro || '—'}</span></div>
+              <div class="field"><span class="field-label">Cidade:</span><span class="field-value">${data.localidade} - ${data.uf}</span></div>
+              <div class="field"><span class="field-label">DDD:</span><span class="field-value">${data.ddd || '—'}</span></div>
+            </div>
+          `;
+        }
+      } catch {
+        errorEl.innerHTML = '<div class="input-hint error" style="margin-top: 12px">❌ Erro de conexão</div>';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Buscar';
+      }
+    }
+
+    // ══════════════════════════════════════════
+    // API CEP Demo (fetchCEP)
+    // ══════════════════════════════════════════
+
+    async function handleApiCEP() {
+      const input = document.getElementById('api-cep-input');
+      const btn = document.getElementById('api-cep-btn');
+      const errorEl = document.getElementById('api-cep-error');
+      const resultEl = document.getElementById('api-cep-result');
+      const cep = input.value.replace(/\D/g, '');
+
+      errorEl.innerHTML = '';
+      resultEl.style.display = 'none';
+
+      if (cep.length !== 8) {
+        errorEl.innerHTML = '<div class="input-hint error" style="margin-top: 12px">❌ CEP inválido: deve conter 8 dígitos.</div>';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '...';
+
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        if (!res.ok) throw new Error(`Erro: ${res.status}`);
+        const data = await res.json();
+
+        if (data.erro) {
+          errorEl.innerHTML = '<div class="input-hint error" style="margin-top: 12px">❌ CEP não encontrado.</div>';
+        } else {
+          resultEl.style.display = 'block';
+          resultEl.innerHTML = `<div class="result-box" style="margin-top: 16px"><pre style="margin:0; white-space: pre-wrap; color: var(--text-secondary); font-family: var(--mono); font-size: 0.83rem;">${JSON.stringify(data, null, 2)}</pre></div>`;
+        }
+      } catch (err) {
+        errorEl.innerHTML = `<div class="input-hint error" style="margin-top: 12px">❌ ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Buscar';
+      }
+    }
+
+    // ══════════════════════════════════════════
+    // Copy to clipboard
+    // ══════════════════════════════════════════
+
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copiado!';
+        btn.style.color = 'var(--green-light)';
+        btn.style.borderColor = 'var(--green)';
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.style.color = '';
+          btn.style.borderColor = '';
+        }, 1500);
+      });
+    }
+
+    // ══════════════════════════════════════════
+    // Scroll reveal animations
+    // ══════════════════════════════════════════
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ══════════════════════════════════════════
+    // Enter key support for CEP inputs
+    // ══════════════════════════════════════════
+
+    document.getElementById('hook-cep-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleHookCEP();
+    });
+    document.getElementById('api-cep-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleApiCEP();
+    });
+  </script>
+
+</body>
+</html>

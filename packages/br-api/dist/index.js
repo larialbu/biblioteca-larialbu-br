@@ -1,0 +1,1 @@
+export { fetchCEP } from './fetchCEP';

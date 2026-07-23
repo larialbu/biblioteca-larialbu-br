@@ -1,0 +1,1 @@
+export { isCPF } from './isCPF';

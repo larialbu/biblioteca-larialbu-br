@@ -1,0 +1,26 @@
+[21:34:01.585] [INFO] storybook v10.5.2
+[21:34:01.719] [DEBUG] Getting package.json info for /Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/packages/br-react/package.json...
+[21:34:02.038] [DEBUG] Could not determine @babel/preset-env version in use. In case of runtime errors with @babel/preset-env, you may need to set the babelRemoveBugfixes feature flag in your `main.ts` file.
+[21:34:02.113] [WARN] No story files found for the specified pattern: [34msrc/**/*.mdx[39m
+[21:34:02.146] [WARN] 🚨 Unable to index ./src/components/CPFInput.stories.tsx:
+  Error: Invariant failed: makeTitle created an undefined title. This happens when the fileName doesn't match any specifier from main.js
+    at invariant (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/_node-chunks/chunk-EEJDL3CO.js:20:11)
+    at Object.defaultMakeTitle [as makeTitle] (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/core-server/index.js:19235:14)
+    at CsfFile.parse (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/_node-chunks/chunk-3Z72BN2O.js:441:42)
+    at Object.createIndex (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/core-server/presets/common-preset.js:1976:154)
+    at async _StoryIndexGenerator.extractStories (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/core-server/index.js:19241:23)
+    at async file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/core-server/index.js:19162:39
+    at async Promise.all (index 4)
+    at async Promise.all (index 2)
+    at async _StoryIndexGenerator.updateExtracted (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/core-server/index.js:19150:5)
+    at async _StoryIndexGenerator.ensureExtracted (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/core-server/index.js:19185:5)
+[21:34:02.149] [ERROR] Error: Unable to index ./src/components/CPFInput.stories.tsx
+    at _StoryIndexGenerator.getIndexAndStats (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/core-server/index.js:19416:15)
+    at async _StoryIndexGenerator.getIndex (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/core-server/index.js:19405:13)
+    at async Object.experimental_serverChannel (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/@storybook+addon-vitest@10.5.2_@vitest+browser-playwright@4.1.10_playwright@1.61.1_vite@8.1.5_j7szazzyczhg64oqwkfjyy2yfu/node_modules/@storybook/addon-vitest/dist/preset.js:463:14)
+    at async buildDevStandalone (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/core-server/index.js:11984:72)
+    at async withTelemetry (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/_node-chunks/chunk-PPNUHXGF.js:1785:12)
+    at async dev (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/bin/core.js:3850:3)
+    at async _Command.<anonymous> (file:///Users/larissaalbuquerque/Documents/LARISSA/Bibliotecas/biblioteca-larialbu-br/node_modules/.pnpm/storybook@10.5.2_@types+react@19.2.17_prettier@3.9.5_react@19.2.7/node_modules/storybook/dist/bin/core.js:3958:3)
+[21:34:02.150] [WARN] Broken build, fix the error above.
+You may need to refresh the browser.
